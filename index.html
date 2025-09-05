@@ -6,8 +6,8 @@
   <title>Teamets Digitala Burk</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f8ff;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #fce4ec);
       padding: 20px;
     }
     h1 {
@@ -18,15 +18,21 @@
       margin-bottom: 30px;
       max-width: 400px;
       margin: auto;
+      background: #ffffffcc;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     label {
       display: block;
       margin-top: 10px;
     }
-    input, select, textarea {
+    input {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
     button {
       margin-top: 10px;
@@ -34,99 +40,125 @@
       background-color: #3498db;
       color: white;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
-    .burk {
+    .burk-container {
       position: relative;
-      width: 300px;
-      height: 400px;
-      margin: 0 auto;
-      border: 5px solid #aaa;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.6);
+      width: 500px;
+      height: 620px;
+      margin: 30px auto;
+      background: url('RandomFileName_08baf3ba-f3c2-45ab-8b78-597d9f64c474.png') no-repeat center center;
+      background-size: contain;
+    }
+    .burk {
+      position: absolute;
+      width: 500px;
+      height: 600px;
+      top: 20px;
+      border-radius: 30px;
       overflow: hidden;
-      box-shadow: inset 0 0 10px #ccc;
     }
     .tarning {
       position: absolute;
-      width: 80px;
-      height: 80px;
-      background-color: #f39c12;
+      width: 100px;
+      height: 100px;
       color: white;
       font-weight: bold;
       padding: 10px;
       box-sizing: border-box;
-      border-radius: 10px;
+      border-radius: 15px;
       animation: fall 1s ease-out forwards;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
     }
     @keyframes fall {
-      0% { top: -100px; opacity: 0; }
-      100% { top: calc(100% - 90px); opacity: 1; }
+      0% { top: -120px; opacity: 0; }
+      100% { top: calc(100% - 110px); opacity: 1; }
+    }
+    .list-section {
+      max-width: 500px;
+      margin: 20px auto;
+      background: #ffffffcc;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .lapp-item {
+      background: #eee;
+      padding: 8px;
+      margin-bottom: 5px;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🎲 Teamets Digitala Burk</h1>
+  <h1>3b2 Teamets Digitala Burk</h1>
 
   <div class="form-section">
-    <label for="name">Namn:</label>
+    <label for="name">Lapp:</label>
     <input type="text" id="name">
-
-    <label for="date">Datum:</label>
-    <input type="date" id="date" value="2025-09-05">
-
-    <label for="category">Kategori:</label>
-    <select id="category">
-      <option>Projekt</option>
-      <option>Hjälp</option>
-      <option>Framsteg</option>
-      <option>Reflektion</option>
-    </select>
-
-    <label for="text">Vad har du gjort?</label>
-    <textarea id="text" rows="3"></textarea>
-
     <button onclick="addLapp()">Lägg till lapp</button>
     <button onclick="exportCSV()">Exportera lappar till CSV</button>
+    <button onclick="confirmClear()">Rensa alla lappar</button>
   </div>
 
-  <div class="burk" id="burk"></div>
+  <div class="burk-container">
+    <div class="burk" id="burk"></div>
+  </div>
+
+  <div class="list-section">
+    <h3>Alla lappar</h3>
+    <div id="lappar-list"></div>
+  </div>
 
   <script>
+    const colors = ['#1abc9c', '#e67e22', '#9b59b6', '#34495e', '#f39c12', '#2980b9'];
+
     function addLapp() {
       const name = document.getElementById('name').value;
-      const date = document.getElementById('date').value;
-      const category = document.getElementById('category').value;
-      const text = document.getElementById('text').value;
-
-      if (!name || !text) {
-        alert("Fyll i namn och vad du har gjort.");
+      if (!name) {
+        alert("Fyll i en lapp.");
         return;
       }
 
-      const lapp = { name, date, category, text };
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const lapp = { name, color };
       let lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
       lappar.push(lapp);
       localStorage.setItem('lappar', JSON.stringify(lappar));
 
       createTarning(lapp);
+      updateList();
       document.getElementById('name').value = '';
-      document.getElementById('text').value = '';
     }
 
     function createTarning(lapp) {
       const burk = document.getElementById('burk');
       const div = document.createElement('div');
       div.className = 'tarning';
-      div.style.left = Math.floor(Math.random() * 220) + 'px';
-      div.innerHTML = `<strong>${lapp.name}</strong><br><em>${lapp.category}</em><br>${lapp.text}`;
+      div.style.left = Math.floor(Math.random() * 390) + 'px';
+      div.style.backgroundColor = lapp.color;
+      div.innerHTML = `<strong>${lapp.name}</strong>`;
       burk.appendChild(div);
+    }
+
+    function updateList() {
+      const lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
+      const list = document.getElementById('lappar-list');
+      list.innerHTML = '';
+      lappar.forEach(lapp => {
+        const item = document.createElement('div');
+        item.className = 'lapp-item';
+        item.textContent = lapp.name;
+        list.appendChild(item);
+      });
     }
 
     function loadLappar() {
       const lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
       lappar.forEach(createTarning);
+      updateList();
     }
 
     function exportCSV() {
@@ -135,10 +167,10 @@
         alert("Inga lappar att exportera.");
         return;
       }
-      let csv = 'Namn,Datum,Kategori,Text
+      let csv = 'Lapp,Färg
 ';
       lappar.forEach(lapp => {
-        csv += `${lapp.name},${lapp.date},${lapp.category},"${lapp.text.replace(/"/g, '""')}"
+        csv += `${lapp.name},${lapp.color}
 `;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -148,6 +180,14 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+
+    function confirmClear() {
+      if (confirm("Vill du verkligen rensa bort alla lappar?")) {
+        localStorage.removeItem('lappar');
+        document.getElementById('burk').innerHTML = '';
+        updateList();
+      }
     }
 
     window.onload = loadLappar;
