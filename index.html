@@ -3,195 +3,121 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Teamets Digitala Burk</title>
+  <title>Digital Syltburk</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e0f7fa, #fce4ec);
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      padding: 40px;
     }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
+    .jar-container {
+      position: relative;
+      width: 240px;
+      height: 360px;
     }
-    .form-section {
-      margin-bottom: 30px;
-      max-width: 400px;
-      margin: auto;
-      background: #ffffffcc;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-    }
-    input {
+    .lid {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+      height: 40px;
+      background-image: linear-gradient(45deg, #6b8e23 25%, transparent 25%, transparent 50%, #6b8e23 50%, #6b8e23 75%, transparent 75%, transparent);
+      background-size: 20px 20px;
+      border-radius: 20px 20px 0 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: top 0.5s ease;
+      z-index: 10;
+    }
+    .jar {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top, #ffffff, #e0e0e0);
+      border: 3px solid #228B22;
+      border-radius: 60px 60px 30px 30px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .notes {
+      max-width: 300px;
+    }
+    .note {
+      background-color: #dff0d8;
+      border: 1px solid #3c763d;
+      padding: 10px;
+      margin: 10px 0;
       border-radius: 5px;
-      border: 1px solid #ccc;
     }
     button {
-      margin-top: 10px;
-      padding: 10px 15px;
-      background-color: #3498db;
+      background-color: #4CAF50;
       color: white;
       border: none;
+      padding: 10px 20px;
+      margin: 10px 5px;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
     }
-    .burk-container {
-      position: relative;
-      width: 500px;
-      height: 620px;
-      margin: 30px auto;
-      background: url('RandomFileName_08baf3ba-f3c2-45ab-8b78-597d9f64c474.png') no-repeat center center;
-      background-size: contain;
-    }
-    .burk {
-      position: absolute;
-      width: 500px;
-      height: 600px;
-      top: 20px;
-      border-radius: 30px;
-      overflow: hidden;
-    }
-    .tarning {
-      position: absolute;
-      width: 100px;
-      height: 100px;
-      color: white;
-      font-weight: bold;
-      padding: 10px;
-      box-sizing: border-box;
-      border-radius: 15px;
-      animation: fall 1s ease-out forwards;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
-    }
-    @keyframes fall {
-      0% { top: -120px; opacity: 0; }
-      100% { top: calc(100% - 110px); opacity: 1; }
-    }
-    .list-section {
-      max-width: 500px;
-      margin: 20px auto;
-      background: #ffffffcc;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .lapp-item {
-      background: #eee;
-      padding: 8px;
-      margin-bottom: 5px;
-      border-radius: 5px;
+    button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
 <body>
-
-  <h1>3b2 Teamets Digitala Burk</h1>
-
-  <div class="form-section">
-    <label for="name">Lapp:</label>
-    <input type="text" id="name">
-    <button onclick="addLapp()">Lägg till lapp</button>
-    <button onclick="exportCSV()">Exportera lappar till CSV</button>
-    <button onclick="confirmClear()">Rensa alla lappar</button>
+  <div class="jar-container">
+    <div class="lid" id="lid"></div>
+    <div class="jar" id="jar">
+      <button onclick="addNote()">Lägg till lapp</button>
+      <button onclick="exportNotes()">Exportera lappar</button>
+    </div>
   </div>
-
-  <div class="burk-container">
-    <div class="burk" id="burk"></div>
-  </div>
-
-  <div class="list-section">
+  <div class="notes" id="notes">
     <h3>Alla lappar</h3>
-    <div id="lappar-list"></div>
   </div>
+
+  <audio id="jarSound" src="pop.mp3" preload="auto"></audio>
 
   <script>
-    const colors = ['#1abc9c', '#e67e22', '#9b59b6', '#34495e', '#f39c12', '#2980b9'];
-
-    function addLapp() {
-      const name = document.getElementById('name').value;
-      if (!name) {
-        alert("Fyll i en lapp.");
-        return;
+    function addNote() {
+      const noteText = prompt("Skriv din lapp:");
+      if (noteText) {
+        const note = document.createElement("div");
+        note.className = "note";
+        note.textContent = noteText;
+        document.getElementById("notes").appendChild(note);
+        openJar();
       }
-
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      const lapp = { name, color };
-      let lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
-      lappar.push(lapp);
-      localStorage.setItem('lappar', JSON.stringify(lappar));
-
-      createTarning(lapp);
-      updateList();
-      document.getElementById('name').value = '';
     }
 
-    function createTarning(lapp) {
-      const burk = document.getElementById('burk');
-      const div = document.createElement('div');
-      div.className = 'tarning';
-      div.style.left = Math.floor(Math.random() * 390) + 'px';
-      div.style.backgroundColor = lapp.color;
-      div.innerHTML = `<strong>${lapp.name}</strong>`;
-      burk.appendChild(div);
-    }
-
-    function updateList() {
-      const lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
-      const list = document.getElementById('lappar-list');
-      list.innerHTML = '';
-      lappar.forEach(lapp => {
-        const item = document.createElement('div');
-        item.className = 'lapp-item';
-        item.textContent = lapp.name;
-        list.appendChild(item);
+    function exportNotes() {
+      const notes = document.querySelectorAll(".note");
+      let csvContent = "data:text/csv;charset=utf-8,";
+      notes.forEach(note => {
+        csvContent += note.textContent + "
+";
       });
-    }
-
-    function loadLappar() {
-      const lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
-      lappar.forEach(createTarning);
-      updateList();
-    }
-
-    function exportCSV() {
-      const lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
-      if (lappar.length === 0) {
-        alert("Inga lappar att exportera.");
-        return;
-      }
-      let csv = 'Lapp,Färg
-';
-      lappar.forEach(lapp => {
-        csv += `${lapp.name},${lapp.color}
-`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.setAttribute('href', URL.createObjectURL(blob));
-      link.setAttribute('download', 'lappar.csv');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "lappar.csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    function confirmClear() {
-      if (confirm("Vill du verkligen rensa bort alla lappar?")) {
-        localStorage.removeItem('lappar');
-        document.getElementById('burk').innerHTML = '';
-        updateList();
-      }
+    function openJar() {
+      const lid = document.getElementById("lid");
+      lid.style.top = "-60px";
+      const sound = document.getElementById("jarSound");
+      if (sound) sound.play();
+      setTimeout(() => {
+        lid.style.top = "0";
+      }, 1500);
     }
-
-    window.onload = loadLappar;
   </script>
-
 </body>
 </html>
