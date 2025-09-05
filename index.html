@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Teamets Digitala Burk</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f8ff;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .form-section {
+      margin-bottom: 30px;
+      max-width: 400px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .burk {
+      position: relative;
+      width: 300px;
+      height: 400px;
+      margin: 0 auto;
+      border: 5px solid #aaa;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.6);
+      overflow: hidden;
+      box-shadow: inset 0 0 10px #ccc;
+    }
+    .tarning {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      background-color: #f39c12;
+      color: white;
+      font-weight: bold;
+      padding: 10px;
+      box-sizing: border-box;
+      border-radius: 10px;
+      animation: fall 1s ease-out forwards;
+    }
+    @keyframes fall {
+      0% { top: -100px; opacity: 0; }
+      100% { top: calc(100% - 90px); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎲 Teamets Digitala Burk</h1>
+
+  <div class="form-section">
+    <label for="name">Namn:</label>
+    <input type="text" id="name">
+
+    <label for="date">Datum:</label>
+    <input type="date" id="date" value="2025-09-05">
+
+    <label for="category">Kategori:</label>
+    <select id="category">
+      <option>Projekt</option>
+      <option>Hjälp</option>
+      <option>Framsteg</option>
+      <option>Reflektion</option>
+    </select>
+
+    <label for="text">Vad har du gjort?</label>
+    <textarea id="text" rows="3"></textarea>
+
+    <button onclick="addLapp()">Lägg till lapp</button>
+    <button onclick="exportCSV()">Exportera lappar till CSV</button>
+  </div>
+
+  <div class="burk" id="burk"></div>
+
+  <script>
+    function addLapp() {
+      const name = document.getElementById('name').value;
+      const date = document.getElementById('date').value;
+      const category = document.getElementById('category').value;
+      const text = document.getElementById('text').value;
+
+      if (!name || !text) {
+        alert("Fyll i namn och vad du har gjort.");
+        return;
+      }
+
+      const lapp = { name, date, category, text };
+      let lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
+      lappar.push(lapp);
+      localStorage.setItem('lappar', JSON.stringify(lappar));
+
+      createTarning(lapp);
+      document.getElementById('name').value = '';
+      document.getElementById('text').value = '';
+    }
+
+    function createTarning(lapp) {
+      const burk = document.getElementById('burk');
+      const div = document.createElement('div');
+      div.className = 'tarning';
+      div.style.left = Math.floor(Math.random() * 220) + 'px';
+      div.innerHTML = `<strong>${lapp.name}</strong><br><em>${lapp.category}</em><br>${lapp.text}`;
+      burk.appendChild(div);
+    }
+
+    function loadLappar() {
+      const lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
+      lappar.forEach(createTarning);
+    }
+
+    function exportCSV() {
+      const lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
+      if (lappar.length === 0) {
+        alert("Inga lappar att exportera.");
+        return;
+      }
+      let csv = 'Namn,Datum,Kategori,Text
+';
+      lappar.forEach(lapp => {
+        csv += `${lapp.name},${lapp.date},${lapp.category},"${lapp.text.replace(/"/g, '""')}"
+`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.setAttribute('href', URL.createObjectURL(blob));
+      link.setAttribute('download', 'lappar.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    window.onload = loadLappar;
+  </script>
+
+</body>
+</html>
