@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -6,49 +7,62 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f0f8ff;
+      background: linear-gradient(to right, #e0f7fa, #fce4ec);
       padding: 20px;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 40px;
     }
-
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .form-section {
+      margin-bottom: 30px;
+      max-width: 400px;
+      margin: auto;
+      background: #ffffffcc;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
     .burk-container {
-      width: 400px;
-      height: 600px;
-      background: radial-gradient(circle at center, #ffffff 0%, #d0e0f0 100%);
-      border: 8px solid #aaa;
-      border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
       position: relative;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+      width: 500px;
+      height: 620px;
+      margin: 30px auto;
+      background: url('RandomFileName_08baf3ba-f3c2-45ab-8b78-597d9f64c474.png') no-repeat center center;
+      background-size: contain;
     }
-
-    .burk-lock {
-      position: absolute;
-      top: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      height: 40px;
-      background: #888;
-      border-radius: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-
     .burk {
       position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
+      width: 500px;
+      height: 600px;
+      top: 20px;
+      border-radius: 30px;
       overflow: hidden;
     }
-
     .tarning {
       position: absolute;
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       color: white;
       font-weight: bold;
       padding: 10px;
@@ -57,52 +71,18 @@
       animation: fall 1s ease-out forwards;
       box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
     }
-
     @keyframes fall {
-      0% { top: -100px; opacity: 0; }
-      100% { top: calc(100% - 90px); opacity: 1; }
+      0% { top: -120px; opacity: 0; }
+      100% { top: calc(100% - 110px); opacity: 1; }
     }
-
-    .form-section {
-      width: 300px;
-      background: #ffffffcc;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-    }
-
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      margin-top: 10px;
-      padding: 10px 15px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
     .list-section {
-      margin-top: 20px;
+      max-width: 500px;
+      margin: 20px auto;
+      background: #ffffffcc;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
-
     .lapp-item {
       background: #eee;
       padding: 8px;
@@ -113,22 +93,23 @@
 </head>
 <body>
 
-  <div class="burk-container">
-    <div class="burk-lock"></div>
-    <div class="burk" id="burk"></div>
-  </div>
+  <h1>3b2 Teamets Digitala Burk</h1>
 
   <div class="form-section">
-    <h1>Teamets Burk</h1>
     <label for="name">Lapp:</label>
     <input type="text" id="name">
     <button onclick="addLapp()">Lägg till lapp</button>
-    <button onclick="exportCSV()">Exportera lappar</button>
+    <button onclick="exportCSV()">Exportera lappar till CSV</button>
+    <button onclick="confirmClear()">Rensa alla lappar</button>
+  </div>
 
-    <div class="list-section">
-      <h3>Alla lappar</h3>
-      <div id="lappar-list"></div>
-    </div>
+  <div class="burk-container">
+    <div class="burk" id="burk"></div>
+  </div>
+
+  <div class="list-section">
+    <h3>Alla lappar</h3>
+    <div id="lappar-list"></div>
   </div>
 
   <script>
@@ -142,7 +123,7 @@
       }
 
       const color = colors[Math.floor(Math.random() * colors.length)];
-      const lapp = { name: name, color: color };
+      const lapp = { name, color };
       let lappar = JSON.parse(localStorage.getItem('lappar') || '[]');
       lappar.push(lapp);
       localStorage.setItem('lappar', JSON.stringify(lappar));
@@ -156,7 +137,7 @@
       const burk = document.getElementById('burk');
       const div = document.createElement('div');
       div.className = 'tarning';
-      div.style.left = Math.floor(Math.random() * 300) + 'px';
+      div.style.left = Math.floor(Math.random() * 390) + 'px';
       div.style.backgroundColor = lapp.color;
       div.innerHTML = `<strong>${lapp.name}</strong>`;
       burk.appendChild(div);
@@ -186,9 +167,11 @@
         alert("Inga lappar att exportera.");
         return;
       }
-      let csv = 'Lapp,Färg\\n';
+      let csv = 'Lapp,Färg
+';
       lappar.forEach(lapp => {
-        csv += `${lapp.name},${lapp.color}\\n`;
+        csv += `${lapp.name},${lapp.color}
+`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -197,6 +180,14 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+
+    function confirmClear() {
+      if (confirm("Vill du verkligen rensa bort alla lappar?")) {
+        localStorage.removeItem('lappar');
+        document.getElementById('burk').innerHTML = '';
+        updateList();
+      }
     }
 
     window.onload = loadLappar;
